@@ -1,0 +1,13 @@
+[package]
+name = "itext"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+bundled = ["color-eyre"]
+
+[dependencies.jni]
+version = "0.21.1"
+
+[build-dependencies]
+color-eyre = { version = "0.6.2", optional = true }
