@@ -2,6 +2,12 @@
 name = "itext"
 version = "0.1.0"
 edition = "2021"
+description = "Safe rust bindings to the iText 7 PDF generation library written in Java"
+readme = "./README.md"
+repository = "https://github.com/MrFriendly-B-V/itext-rs"
+license = "MIT OR Apache-2.0"
+keywords = ["pdf", "itext"]
+categories = ["api-bindings", "external-ffi-bindings", "multimedia::encoding"]
 
 [features]
 bundled = ["color-eyre"]
