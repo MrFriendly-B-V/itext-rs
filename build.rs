@@ -1,4 +1,3 @@
-
 #[cfg(not(feature = "bundled"))]
 fn main() {}
 
@@ -9,12 +8,12 @@ fn main() -> color_eyre::Result<()> {
 
 #[cfg(feature = "bundled")]
 mod bundled {
+    use color_eyre::eyre::Error;
     use color_eyre::Result;
     use std::env::var;
     use std::fs;
     use std::path::PathBuf;
     use std::process::{Command, Stdio};
-    use color_eyre::eyre::Error;
 
     pub fn build_itext() -> Result<()> {
         println!("cargo:rerun-if-changed=bundle");
@@ -22,10 +21,7 @@ mod bundled {
         let manifest_dir = PathBuf::from(var("CARGO_MANIFEST_DIR")?);
         run_gradle_command("shadowjar")?;
 
-        let builddir = manifest_dir
-            .join("bundle")
-            .join("build")
-            .join("libs");
+        let builddir = manifest_dir.join("bundle").join("build").join("libs");
 
         let outjar = fs::read_dir(builddir)?
             .into_iter()

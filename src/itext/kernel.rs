@@ -1,8 +1,8 @@
+use crate::java::ByteArrayOutputStream;
 use crate::java_object;
 use jni::errors::Result;
-use jni::JNIEnv;
 use jni::objects::JObject;
-use crate::java::ByteArrayOutputStream;
+use jni::JNIEnv;
 
 java_object!(PdfDocument);
 java_object!(PdfWriter);
@@ -15,32 +15,56 @@ pub enum ColorConstant {
 
 impl<'a> PdfDocument<'a> {
     pub fn new(writer: &PdfWriter<'a>, env: &mut JNIEnv<'a>) -> Result<Self> {
-        let obj = env.new_object("com/itextpdf/kernel/pdf/PdfDocument", "(Lcom/itextpdf/kernel/pdf/PdfWriter;)V", &[(&writer).into()])?;
+        let obj = env.new_object(
+            "com/itextpdf/kernel/pdf/PdfDocument",
+            "(Lcom/itextpdf/kernel/pdf/PdfWriter;)V",
+            &[(&writer).into()],
+        )?;
         Ok(Self(obj))
     }
 
     pub fn get_default_page_size(&self, env: &mut JNIEnv<'a>) -> Result<PageSize<'a>> {
-        let obj = env.call_method(self, "getDefaultPageSize", "()Lcom/itextpdf/kernel/geom/PageSize;", &[])?.l()?;
+        let obj = env
+            .call_method(
+                self,
+                "getDefaultPageSize",
+                "()Lcom/itextpdf/kernel/geom/PageSize;",
+                &[],
+            )?
+            .l()?;
         Ok(PageSize(obj))
     }
 }
 
 impl<'a> PdfWriter<'a> {
     pub fn new(byte_stream: &ByteArrayOutputStream<'a>, env: &mut JNIEnv<'a>) -> Result<Self> {
-        let obj = env.new_object("com/itextpdf/kernel/pdf/PdfWriter", "(Ljava/io/OutputStream;)V", &[(&byte_stream).into()])?;
+        let obj = env.new_object(
+            "com/itextpdf/kernel/pdf/PdfWriter",
+            "(Ljava/io/OutputStream;)V",
+            &[(&byte_stream).into()],
+        )?;
         Ok(Self(obj))
     }
 }
 
 impl<'a> SolidLine<'a> {
     pub fn new(line_width: f32, env: &mut JNIEnv<'a>) -> Result<Self> {
-        let obj = env.new_object("com/itextpdf/kernel/pdf/canvas/draw/SolidLine", "(F)V", &[line_width.into()])?;
+        let obj = env.new_object(
+            "com/itextpdf/kernel/pdf/canvas/draw/SolidLine",
+            "(F)V",
+            &[line_width.into()],
+        )?;
         Ok(Self(obj))
     }
 
     pub fn set_color(&self, color: ColorConstant, env: &mut JNIEnv<'a>) -> Result<()> {
         let color_j = color.get_java_value(env)?;
-        env.call_method(self, "setColor", "(Lcom/itextpdf/kernel/colors/Color;)V", &[(&color_j).into()])?;
+        env.call_method(
+            self,
+            "setColor",
+            "(Lcom/itextpdf/kernel/colors/Color;)V",
+            &[(&color_j).into()],
+        )?;
         Ok(())
     }
 }
@@ -51,7 +75,13 @@ impl ColorConstant {
             Self::Black => "BLACK",
         };
 
-        let obj = env.get_static_field("com/itextpdf/kernel/colors/ColorConstants", field_name, "Lcom/itextpdf/kernel/colors/Color;")?.l()?;
+        let obj = env
+            .get_static_field(
+                "com/itextpdf/kernel/colors/ColorConstants",
+                field_name,
+                "Lcom/itextpdf/kernel/colors/Color;",
+            )?
+            .l()?;
         Ok(obj)
     }
 }

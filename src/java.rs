@@ -1,15 +1,15 @@
-use jni::JNIEnv;
+use crate::java_object;
+use crate::javax::{ImageIO, ImageInputStream};
+use jni::errors::Result;
 use jni::objects::JByteArray;
 use jni::sys::{jbyte, jsize};
-use jni::errors::Result;
-use crate::java_object;
-use crate::javax::{ImageInputStream, ImageIO};
+use jni::JNIEnv;
 
 java_object!(ByteArrayOutputStream);
 java_object!(ByteArrayInputStream);
 java_object!(BufferedImage);
 
-impl<'a>ByteArrayOutputStream<'a> {
+impl<'a> ByteArrayOutputStream<'a> {
     pub fn new(env: &mut JNIEnv<'a>) -> Result<Self> {
         let obj = env.new_object("java/io/ByteArrayOutputStream", "()V", &[])?;
         Ok(Self(obj))
@@ -23,9 +23,7 @@ impl<'a>ByteArrayOutputStream<'a> {
         let mut buf = vec![0; size as usize];
         env.get_byte_array_region(&obj_arr, 0, &mut buf)?;
 
-        let buf = buf.into_iter()
-            .map(|x| x as u8)
-            .collect::<Vec<_>>();
+        let buf = buf.into_iter().map(|x| x as u8).collect::<Vec<_>>();
         Ok(buf)
     }
 }
@@ -36,13 +34,20 @@ impl<'a> ByteArrayInputStream<'a> {
         let jbytes = bytes.into_iter().map(|x| *x as jbyte).collect::<Vec<_>>();
         env.set_byte_array_region(&byte_arr, 0, &jbytes)?;
 
-        let obj = env.new_object("java/io/ByteArrayInputStream", "([B)V", &[(&byte_arr).into()])?;
+        let obj = env.new_object(
+            "java/io/ByteArrayInputStream",
+            "([B)V",
+            &[(&byte_arr).into()],
+        )?;
         Ok(Self(obj))
     }
 }
 
 impl<'a> BufferedImage<'a> {
-    pub fn new_from_image_input_stream(image_input_stream: ImageInputStream<'a>, env: &mut JNIEnv<'a>) -> Result<Self> {
+    pub fn new_from_image_input_stream(
+        image_input_stream: ImageInputStream<'a>,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<Self> {
         ImageIO::read_image_input_stream(image_input_stream, env)
     }
 

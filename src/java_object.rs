@@ -8,5 +8,5 @@ macro_rules! java_object {
                 &self.0
             }
         }
-    }
+    };
 }
