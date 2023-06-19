@@ -269,6 +269,8 @@ pub enum TextAlignment {
     JustifiedAll,
 }
 
+impl<'a> ElementPropertyContainer<'a> for Document<'a> {}
+
 impl<'a> Document<'a> {
     pub fn new(pdf_document: &PdfDocument<'a>, env: &mut JNIEnv<'a>) -> Result<Self> {
         let obj = env.new_object(
@@ -321,6 +323,18 @@ impl<'a> Document<'a> {
 
     pub fn get_bottom_margin(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
         env.call_method(self, "getBottomMargin", "()F", &[])?.f()
+    }
+
+    pub fn get_pdf_document(&self, env: &mut JNIEnv<'a>) -> Result<PdfDocument<'a>> {
+        let object = env
+            .call_method(
+                self,
+                "getPdfDocument",
+                "()Lcom/itextpdf/kernel/pdf/PdfDocument;",
+                &[],
+            )?
+            .l()?;
+        Ok(PdfDocument(object))
     }
 }
 
