@@ -1,7 +1,7 @@
-use convert_case::{Case, Casing};
 use crate::itext::io::ImageData;
 use crate::itext::kernel::{Color, ColorConstant, PdfDocument, SolidLine};
 use crate::java_object;
+use convert_case::{Case, Casing};
 use jni::errors::Result;
 use jni::objects::JObject;
 use jni::sys::jsize;
@@ -19,12 +19,18 @@ pub trait ElementPropertyContainer<'a>
 where
     Self: AsRef<JObject<'a>>,
 {
-    fn set_fixed_position(&self, left: f32, bottom: f32, width: f32, env: &mut JNIEnv<'a>) -> Result<&Self> {
+    fn set_fixed_position(
+        &self,
+        left: f32,
+        bottom: f32,
+        width: f32,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<&Self> {
         env.call_method(
             self.as_ref(),
             "setFixedPosition",
             "(FFF)Lcom/itextpdf/layout/IPropertyContainer;",
-            &[left.into(), bottom.into(), width.into()]
+            &[left.into(), bottom.into(), width.into()],
         )?;
         Ok(self)
     }
@@ -135,14 +141,13 @@ where
             self.as_ref(),
             "setFontColor",
             "(Lcom/itextpdf/kernel/colors/Color;)Lcom/itextpdf/layout/IPropertyContainer;",
-            &[(&color).into()]
+            &[(&color).into()],
         )?;
         Ok(self)
     }
 }
 
 impl<'a, T: ElementPropertyContainer<'a>> ElementPropertyContainer<'a> for &T {}
-
 
 pub trait BlockElement<'a>
 where
@@ -191,7 +196,7 @@ where
     fn set_vertical_alignment(
         &self,
         alignment: VerticalAlignment,
-        env: &mut JNIEnv<'a>
+        env: &mut JNIEnv<'a>,
     ) -> Result<&Self> {
         let valign_j = alignment.get_java_value(env)?;
         env.call_method(self.as_ref(), "setVerticalAlignment", "(Lcom/itextpdf/layout/property/VerticalAlignment;)Lcom/itextpdf/layout/element/IElement;", &[(&valign_j).into()])?;
@@ -203,7 +208,8 @@ impl<'a, T: BlockElement<'a>> BlockElement<'a> for &T {}
 
 pub trait Element<'a>
 where
-    Self: AsRef<JObject<'a>> {
+    Self: AsRef<JObject<'a>>,
+{
 }
 
 impl<'a, T: Element<'a>> Element<'a> for &T {}
@@ -269,7 +275,7 @@ impl<'a> Document<'a> {
             self,
             "add",
             "(Lcom/itextpdf/layout/element/IBlockElement;)Lcom/itextpdf/layout/Document;",
-            &[element.as_ref().into()]
+            &[element.as_ref().into()],
         )?;
         Ok(self)
     }
@@ -280,15 +286,15 @@ impl<'a> Document<'a> {
     }
 
     pub fn get_left_margin(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        Ok(env.call_method(self, "getLeftMargin", "()F", &[])?.f()?)
+        env.call_method(self, "getLeftMargin", "()F", &[])?.f()
     }
 
     pub fn get_right_margin(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        Ok(env.call_method(self, "getRightMargin", "()F", &[])?.f()?)
+        env.call_method(self, "getRightMargin", "()F", &[])?.f()
     }
 
     pub fn get_bottom_margin(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        Ok(env.call_method(self, "getBottomMargin", "()F", &[])?.f()?)
+        env.call_method(self, "getBottomMargin", "()F", &[])?.f()
     }
 }
 
@@ -299,7 +305,7 @@ impl<'a> BlockElement<'a> for Table<'a> {}
 impl<'a> Table<'a> {
     pub fn new(point_column_widths: &[f32], env: &mut JNIEnv<'a>) -> Result<Self> {
         let array = env.new_float_array(point_column_widths.len() as jsize)?;
-        env.set_float_array_region(&array, 0, &point_column_widths)?;
+        env.set_float_array_region(&array, 0, point_column_widths)?;
 
         let obj = env.new_object(
             "com/itextpdf/layout/element/Table",
@@ -380,9 +386,8 @@ impl Border {
                     "(Lcom/itextpdf/kernel/colors/Color;F)V",
                     &[(&color_j).into(), (*width).into()],
                 )?
-                .into()
             }
-            Self::NoBorder => JObject::null().into(),
+            Self::NoBorder => JObject::null(),
         })
     }
 }
@@ -428,12 +433,16 @@ impl<'a> Cell<'a> {
         Ok(self)
     }
 
-    pub fn add<F: BlockElement<'a>>(&self, block_element: &F, env: &mut JNIEnv<'a>) -> Result<&Self> {
+    pub fn add<F: BlockElement<'a>>(
+        &self,
+        block_element: &F,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<&Self> {
         env.call_method(
             self,
-                "add",
+            "add",
             "(Lcom/itextpdf/layout/element/IBlockElement;)Lcom/itextpdf/layout/element/Cell;",
-            &[block_element.as_ref().into()]
+            &[block_element.as_ref().into()],
         )?;
         Ok(self)
     }

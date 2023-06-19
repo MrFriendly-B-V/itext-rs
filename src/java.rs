@@ -31,7 +31,7 @@ impl<'a> ByteArrayOutputStream<'a> {
 impl<'a> ByteArrayInputStream<'a> {
     pub fn new(bytes: &[u8], env: &mut JNIEnv<'a>) -> Result<Self> {
         let byte_arr = env.new_byte_array(bytes.len() as jsize)?;
-        let jbytes = bytes.into_iter().map(|x| *x as jbyte).collect::<Vec<_>>();
+        let jbytes = bytes.iter().map(|x| *x as jbyte).collect::<Vec<_>>();
         env.set_byte_array_region(&byte_arr, 0, &jbytes)?;
 
         let obj = env.new_object(
@@ -52,10 +52,10 @@ impl<'a> BufferedImage<'a> {
     }
 
     pub fn get_width(&self, env: &mut JNIEnv<'a>) -> Result<i32> {
-        Ok(env.call_method(self, "getWidth", "()I", &[])?.i()?)
+        env.call_method(self, "getWidth", "()I", &[])?.i()
     }
 
     pub fn get_height(&self, env: &mut JNIEnv<'a>) -> Result<i32> {
-        Ok(env.call_method(self, "getHeight", "()I", &[])?.i()?)
+        env.call_method(self, "getHeight", "()I", &[])?.i()
     }
 }

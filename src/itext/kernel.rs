@@ -1,6 +1,6 @@
-use convert_case::{Case, Casing};
 use crate::java::ByteArrayOutputStream;
 use crate::java_object;
+use convert_case::{Case, Casing};
 use jni::errors::Result;
 use jni::objects::JObject;
 use jni::JNIEnv;
@@ -90,7 +90,7 @@ impl<'a> Color<'a> {
         let obj = env.new_object(
             "com/itextpdf/kernel/colors/DeviceRgb",
             "(FFF)V",
-            &[r.into(), g.into(), b.into()]
+            &[r.into(), g.into(), b.into()],
         )?;
         Ok(Self(obj))
     }
@@ -167,14 +167,18 @@ page_size_constant!(
 
 impl<'a> PageSize<'a> {
     pub fn new(width: f32, height: f32, env: &mut JNIEnv<'a>) -> Result<Self> {
-        Ok(Self(env.new_object("Lcom/itextpdf/kernel/geom/PageSize;", "(FF)V", &[width.into(), height.into()])?))
+        Ok(Self(env.new_object(
+            "Lcom/itextpdf/kernel/geom/PageSize;",
+            "(FF)V",
+            &[width.into(), height.into()],
+        )?))
     }
 
     pub fn get_width(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        Ok(env.call_method(self, "getWidth", "()F", &[])?.f()?)
+        env.call_method(self, "getWidth", "()F", &[])?.f()
     }
 
     pub fn get_height(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        Ok(env.call_method(self, "getHeight", "()F", &[])?.f()?)
+        env.call_method(self, "getHeight", "()F", &[])?.f()
     }
 }
