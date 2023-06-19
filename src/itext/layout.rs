@@ -1,9 +1,9 @@
 use crate::itext::io::ImageData;
-use crate::itext::kernel::{Color, ColorConstant, PdfDocument, SolidLine};
+use crate::itext::kernel::{Color, ColorConstant, PdfDocument, PdfFont, SolidLine};
 use crate::java_object;
 use convert_case::{Case, Casing};
 use jni::errors::Result;
-use jni::objects::JObject;
+use jni::objects::{JObject, JValueGen};
 use jni::sys::jsize;
 use jni::JNIEnv;
 use strum_macros::Display;
@@ -143,6 +143,32 @@ where
             "(Lcom/itextpdf/kernel/colors/Color;)Lcom/itextpdf/layout/IPropertyContainer;",
             &[(&color).into()],
         )?;
+        Ok(self)
+    }
+
+    fn set_font_color_with_opacity(
+        &self,
+        color: &Color<'a>,
+        opacity: f32,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<&Self> {
+        env.call_method(
+            self.as_ref(),
+            "setFontColor",
+            "(Lcom/itextpdf/kernel/colors/Color;F)Lcom/itextpdf/layout/IPropertyContainer;",
+            &[(&color).into(), JValueGen::Float(opacity)],
+        )?;
+        Ok(self)
+    }
+
+    fn set_font(&self, font: &PdfFont<'a>, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self.as_ref(),
+            "setFont",
+            "(Lcom/itextpdf/kernel/font/PdfFont;)Lcom/itextpdf/layout/IPropertyContainer;",
+            &[(&font).into()],
+        )?;
+
         Ok(self)
     }
 }

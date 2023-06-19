@@ -1,8 +1,10 @@
+use crate::itext::io::{FontProgram, PdfEncodings, StandardFont};
 use crate::java::ByteArrayOutputStream;
 use crate::java_object;
 use convert_case::{Case, Casing};
 use jni::errors::Result;
-use jni::objects::JObject;
+use jni::objects::{JObject, JValueGen};
+use jni::sys::jboolean;
 use jni::JNIEnv;
 use strum_macros::Display;
 
@@ -11,6 +13,8 @@ java_object!(PdfWriter);
 java_object!(SolidLine);
 java_object!(PageSize);
 java_object!(Color);
+java_object!(PdfFont);
+java_object!(PdfFontFactory);
 
 #[derive(Clone, Display)]
 pub enum ColorConstant {
@@ -180,5 +184,65 @@ impl<'a> PageSize<'a> {
 
     pub fn get_height(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
         env.call_method(self, "getHeight", "()F", &[])?.f()
+    }
+}
+
+impl<'a> PdfFontFactory<'a> {
+    pub fn create_from_standard_font(
+        standard_font: StandardFont,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<PdfFont<'a>> {
+        let font = standard_font.get_java_value(env)?;
+        let object = env
+            .call_static_method(
+                "com/itextpdf/kernel/font/PdfFontFactory",
+                "createFont",
+                "(Ljava/lang/String;)Lcom/itextpdf/kernel/font/PdfFont;",
+                &[(&font).into()],
+            )?
+            .l()?;
+        Ok(PdfFont(object))
+    }
+
+    pub fn create_from_program(program: FontProgram, env: &mut JNIEnv<'a>) -> Result<PdfFont<'a>> {
+        let object = env
+            .call_static_method(
+                "com/itextpdf/kernel/font/PdfFontFactory",
+                "createFont",
+                "(Lcom/itextpdf/io/font/FontProgram;)Lcom/itextpdf/kernel/font/PdfFont;",
+                &[program.as_ref().into()],
+            )?
+            .l()?;
+        Ok(PdfFont(object))
+    }
+
+    pub fn create_from_program_with_encoding(
+        program: FontProgram,
+        encoding: PdfEncodings,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<PdfFont<'a>> {
+        let encoding = encoding.get_java_value(env)?;
+        let object = env.call_static_method(
+            "com/itextpdf/kernel/font/PdfFontFactory",
+            "createFont",
+            "(Lcom/itextpdf/io/font/FontProgram;Ljava/lang/String;)Lcom/itextpdf/kernel/font/PdfFont;",
+            &[program.as_ref().into(), (&encoding).into()]
+        )?.l()?;
+        Ok(PdfFont(object))
+    }
+
+    pub fn create_from_program_with_encoding_embedded(
+        program: FontProgram,
+        encoding: PdfEncodings,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<PdfFont<'a>> {
+        let encoding = encoding.get_java_value(env)?;
+        let object = env.call_static_method(
+            "com/itextpdf/kernel/font/PdfFontFactory",
+            "createFont",
+            "(Lcom/itextpdf/io/font/FontProgram;Ljava/lang/String;Z)Lcom/itextpdf/kernel/font/PdfFont;",
+            &[program.as_ref().into(), (&encoding).into(), JValueGen::Bool(true as jboolean)]
+        )?.l()?;
+        Ok(PdfFont(object))
     }
 }
