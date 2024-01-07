@@ -484,10 +484,11 @@ impl<'a> Cell<'a> {
     }
 
     pub fn new_with_span(rowspan: i32, colspan: i32, env: &mut JNIEnv<'a>) -> Result<Self> {
-        let obj = env.new_object("com/itextpdf/layout/element/Cell", "(II)V", &[
-            rowspan.into(),
-            colspan.into(),
-        ])?;
+        let obj = env.new_object(
+            "com/itextpdf/layout/element/Cell",
+            "(II)V",
+            &[rowspan.into(), colspan.into()],
+        )?;
 
         Ok(Self(obj))
     }
