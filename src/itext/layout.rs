@@ -219,6 +219,26 @@ where
         Ok(self)
     }
 
+    fn set_margin_left(&self, margin: f32, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self.as_ref(),
+            "setMarginLeft",
+            "(F)Lcom/itextpdf/layout/element/IElement;",
+            &[margin.into()],
+        )?;
+        Ok(self)
+    }
+
+    fn set_margin_right(&self, margin: f32, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self.as_ref(),
+            "setMarginRight",
+            "(F)Lcom/itextpdf/layout/element/IElement;",
+            &[margin.into()],
+        )?;
+        Ok(self)
+    }
+
     fn set_vertical_alignment(
         &self,
         alignment: VerticalAlignment,
@@ -460,6 +480,15 @@ impl<'a> Element<'a> for Cell<'a> {}
 impl<'a> Cell<'a> {
     pub fn new(env: &mut JNIEnv<'a>) -> Result<Self> {
         let obj = env.new_object("com/itextpdf/layout/element/Cell", "()V", &[])?;
+        Ok(Self(obj))
+    }
+
+    pub fn new_with_span(rowspan: i32, colspan: i32, env: &mut JNIEnv<'a>) -> Result<Self> {
+        let obj = env.new_object("com/itextpdf/layout/element/Cell", "(II)V", &[
+            rowspan.into(),
+            colspan.into(),
+        ])?;
+
         Ok(Self(obj))
     }
 
