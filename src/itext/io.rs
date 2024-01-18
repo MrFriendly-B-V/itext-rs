@@ -27,6 +27,26 @@ impl<'a> ImageData<'a> {
             .l()?;
         Ok(Self(obj))
     }
+
+    pub fn get_width(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
+        let obj = env.call_method(
+            self,
+            "getWidth",
+            "()F",
+            &[]
+        )?.f()?;
+        Ok(obj)
+    }
+
+    pub fn get_height(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
+        let obj = env.call_method(
+            self,
+            "getHeight",
+            "()F",
+            &[]
+        )?.f()?;
+        Ok(obj)
+    }
 }
 
 #[derive(Debug, Clone, Display)]

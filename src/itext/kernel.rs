@@ -1,4 +1,4 @@
-use crate::itext::io::{FontProgram, PdfEncodings, StandardFont};
+use crate::itext::io::{FontProgram, ImageData, PdfEncodings, StandardFont};
 use crate::java::ByteArrayOutputStream;
 use crate::java_object;
 use convert_case::{Case, Casing};
@@ -15,6 +15,10 @@ java_object!(PageSize);
 java_object!(Color);
 java_object!(PdfFont);
 java_object!(PdfFontFactory);
+java_object!(PdfCanvas);
+java_object!(PdfPage);
+java_object!(PdfExtGState);
+java_object!(Rectangle);
 
 #[derive(Clone, Display)]
 pub enum ColorConstant {
@@ -53,6 +57,27 @@ impl<'a> PdfDocument<'a> {
             )?
             .l()?;
         Ok(PageSize(obj))
+    }
+
+    pub fn get_page(&self, page_num: i32, env: &mut JNIEnv<'a>) -> Result<PdfPage<'a>> {
+        let obj = env.call_method(
+            self,
+            "getPage",
+            "(I)Lcom/itextpdf/kernel/pdf/PdfPage;",
+            &[page_num.into()]
+        )?
+        .l()?;
+        Ok(PdfPage(obj))
+    }
+
+    pub fn get_number_of_pages(&self, env: &mut JNIEnv<'a>) -> Result<i32> {
+        let obj = env.call_method(
+            self,
+            "getNumberOfPages",
+            "()I",
+            &[]
+        )?.i()?;
+        Ok(obj)
     }
 }
 
@@ -244,5 +269,163 @@ impl<'a> PdfFontFactory<'a> {
             &[program.as_ref().into(), (&encoding).into(), JValueGen::Bool(true as jboolean)]
         )?.l()?;
         Ok(PdfFont(object))
+    }
+}
+
+impl<'a> PdfCanvas<'a> {
+    pub fn new_with_page(page: &PdfPage<'a>, env: &mut JNIEnv<'a>) -> Result<PdfCanvas<'a>> {
+        let obj = env.new_object(
+            "com/itextpdf/kernel/pdf/canvas/PdfCanvas",
+            "(Lcom/itextpdf/kernel/pdf/PdfPage;)V",
+            &[(&page).into()],
+        )?;
+        Ok(Self(obj))
+    }
+
+    pub fn save_state(&self, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "saveState",
+            "()Lcom/itextpdf/kernel/pdf/canvas/PdfCanvas;",
+            &[],
+        )?;
+        Ok(self)
+    }
+
+    pub fn restore_state(&self, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "restoreState",
+            "()Lcom/itextpdf/kernel/pdf/canvas/PdfCanvas;",
+            &[],
+        )?;
+        Ok(self)
+    }
+
+    pub fn set_ext_g_state(&self, ext_g_state: &PdfExtGState<'a>, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "setExtGState",
+            "(Lcom/itextpdf/kernel/pdf/extgstate/PdfExtGState;)Lcom/itextpdf/kernel/pdf/canvas/PdfCanvas;",
+            &[
+                (&ext_g_state).into()
+            ],
+        )?;
+        Ok(self)
+    }
+
+    pub fn add_image_with_transformation_matrix(
+        &self,
+        image_data: &ImageData<'a>,
+        a: f32,
+        b: f32,
+        c: f32,
+        d: f32,
+        e: f32,
+        f: f32,
+        inline: bool,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<&Self> {
+        env.call_method(
+            self,
+            "addImageWithTransformationMatrix",
+            "(Lcom/itextpdf/io/image/ImageData;FFFFFFZ)Lcom/itextpdf/kernel/pdf/xobject/PdfXObject;",
+            &[
+                image_data.into(),
+                a.into(),
+                b.into(),
+                c.into(),
+                d.into(),
+                e.into(),
+                f.into(),
+                inline.into(),
+            ]
+        )?;
+        Ok(self)
+    }
+}
+
+impl<'a> PdfPage<'a> {
+    pub fn set_ignore_page_rotation_for_content(&self, ignore_page_rotation_for_content: bool, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "setIgnorePageRotationForContent",
+            "(Z)Lcom/itextpdf/kernel/pdf/PdfPage;",
+            &[ignore_page_rotation_for_content.into()]
+        )?;
+        Ok(self)
+    }
+
+    pub fn get_page_size_with_rotation(&self, env: &mut JNIEnv<'a>) -> Result<Rectangle<'a>> {
+        let obj = env.call_method(
+            self,
+            "getPageSizeWithRotation",
+            "()Lcom/itextpdf/kernel/geom/Rectangle;",
+            &[]
+        )?.l()?;
+        Ok(Rectangle(obj))
+    }
+}
+
+impl<'a> Rectangle<'a> {
+    pub fn get_top(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
+        let obj = env.call_method(
+            self,
+            "getTop",
+            "()F",
+            &[]
+        )?.f()?;
+        Ok(obj)
+    }
+
+    pub fn get_right(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
+        let obj = env.call_method(
+            self,
+            "getRight",
+            "()F",
+            &[]
+        )?.f()?;
+        Ok(obj)
+    }
+
+    pub fn get_bottom(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
+        let obj = env.call_method(
+            self,
+            "getBottom",
+            "()F",
+            &[]
+        )?.f()?;
+        Ok(obj)
+    }
+
+    pub fn get_left(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
+        let obj = env.call_method(
+            self,
+            "getLeft",
+            "()F",
+            &[]
+        )?.f()?;
+        Ok(obj)
+    }
+}
+
+impl<'a> PdfExtGState<'a> {
+    pub fn new(env: &mut JNIEnv<'a>) -> Result<PdfExtGState<'a>> {
+        let obj = env.new_object(
+            "com/itextpdf/kernel/pdf/extgstate/PdfExtGState",
+            "()V",
+            &[]
+        )?;
+        Ok(PdfExtGState(obj))
+    }
+
+    pub fn set_fill_opacity(&self, env: &mut JNIEnv<'a>, filling_alpha_constant: f32) -> Result<&Self> {
+        env.call_method(
+            self,
+            "setFillOpacity",
+            "(F)Lcom/itextpdf/kernel/pdf/extgstate/PdfExtGState;",
+            &[filling_alpha_constant.into()]
+        )?;
+        Ok(self)
     }
 }
