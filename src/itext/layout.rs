@@ -1,5 +1,7 @@
 use crate::itext::io::ImageData;
-use crate::itext::kernel::{Color, ColorConstant, PdfDocument, PdfFont, SolidLine};
+use crate::itext::kernel::{
+    Color, ColorConstant, PageSize, PdfCanvas, PdfDocument, PdfFont, PdfPage, Rectangle, SolidLine,
+};
 use crate::java_object;
 use convert_case::{Case, Casing};
 use jni::errors::Result;
@@ -14,6 +16,34 @@ java_object!(Cell);
 java_object!(Paragraph);
 java_object!(LineSeparator);
 java_object!(Image);
+java_object!(Canvas);
+
+pub trait RootElement<'a>
+where
+    Self: AsRef<JObject<'a>> + ElementPropertyContainer<'a>,
+{
+    fn add<F: BlockElement<'a>>(&self, element: F, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "add",
+            "(Lcom/itextpdf/layout/element/IBlockElement;)Lcom/itextpdf/layout/IPropertyContainer;",
+            &[element.as_ref().into()],
+        )?;
+        Ok(self)
+    }
+
+    fn add_image(&self, element: &Image<'a>, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "add",
+            "(Lcom/itextpdf/layout/element/Image;)Lcom/itextpdf/layout/IPropertyContainer;",
+            &[element.as_ref().into()],
+        )?;
+        Ok(self)
+    }
+}
+
+impl<'a, T: RootElement<'a>> RootElement<'a> for &T {}
 
 pub trait ElementPropertyContainer<'a>
 where
@@ -290,6 +320,7 @@ pub enum TextAlignment {
 }
 
 impl<'a> ElementPropertyContainer<'a> for Document<'a> {}
+impl<'a> RootElement<'a> for Document<'a> {}
 
 impl<'a> Document<'a> {
     pub fn new(pdf_document: &PdfDocument<'a>, env: &mut JNIEnv<'a>) -> Result<Self> {
@@ -297,6 +328,24 @@ impl<'a> Document<'a> {
             "com/itextpdf/layout/Document",
             "(Lcom/itextpdf/kernel/pdf/PdfDocument;)V",
             &[(&pdf_document).into()],
+        )?;
+        Ok(Self(obj))
+    }
+
+    pub fn new_with_flush(
+        pdf_document: &PdfDocument<'a>,
+        page_size: &PageSize,
+        immediate_flush: bool,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<Self> {
+        let obj = env.new_object(
+            "com/itextpdf/layout/Document",
+            "(Lcom/itextpdf/kernel/pdf/PdfDocument;Lcom/itextpdf/kernel/geom/PageSize;Z)V",
+            &[
+                pdf_document.into(),
+                page_size.into(),
+                immediate_flush.into(),
+            ],
         )?;
         Ok(Self(obj))
     }
@@ -314,16 +363,6 @@ impl<'a> Document<'a> {
             "setMargins",
             "(FFFF)V",
             &[top.into(), right.into(), bottom.into(), left.into()],
-        )?;
-        Ok(self)
-    }
-
-    pub fn add<F: BlockElement<'a>>(&self, element: F, env: &mut JNIEnv<'a>) -> Result<&Self> {
-        env.call_method(
-            self,
-            "add",
-            "(Lcom/itextpdf/layout/element/IBlockElement;)Lcom/itextpdf/layout/Document;",
-            &[element.as_ref().into()],
         )?;
         Ok(self)
     }
@@ -585,6 +624,57 @@ impl<'a> Image<'a> {
             "(F)Lcom/itextpdf/layout/element/Image;",
             &[height.into()],
         )?;
+        Ok(self)
+    }
+}
+
+impl<'a> ElementPropertyContainer<'a> for Canvas<'a> {}
+impl<'a> RootElement<'a> for Canvas<'a> {}
+
+impl<'a> Canvas<'a> {
+    pub fn new_from_canvas(
+        pdf_canvas: &PdfCanvas<'a>,
+        root_area: &Rectangle<'a>,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<Self> {
+        let obj = env.new_object(
+            "com/itextpdf/layout/Canvas",
+            "(Lcom/itextpdf/kernel/canvas/PdfCanvas;Lcom/itextpdf/kernel/geom/Rectangle;)V",
+            &[pdf_canvas.into(), root_area.into()],
+        )?;
+        Ok(Self(obj))
+    }
+
+    pub fn new_from_canvas_flush(
+        pdf_canvas: &PdfCanvas<'a>,
+        root_area: &Rectangle<'a>,
+        immediate_flush: bool,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<Self> {
+        let obj = env.new_object(
+            "com/itextpdf/layout/Canvas",
+            "(Lcom/itextpdf/kernel/canvas/PdfCanvas;Lcom/itextpdf/kernel/geom/Rectangle;Z)V",
+            &[pdf_canvas.into(), root_area.into(), immediate_flush.into()],
+        )?;
+        Ok(Self(obj))
+    }
+
+    pub fn new_from_page(
+        pdf_page: &PdfPage<'a>,
+        root_area: &Rectangle<'a>,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<Self> {
+        let obj = env.new_object(
+            "com/itextpdf/layout/Canvas",
+            "(Lcom/itextpdf/kernel/pdf/PdfPage;Lcom/itextpdf/kernel/geom/Rectangle;)V",
+            &[pdf_page.into(), root_area.into()],
+        )?;
+        Ok(Self(obj))
+    }
+
+    ///  Performs an entire recalculation of the element flow on the canvas, taking into account all its current child elements.
+    pub fn relayout(&self, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(self, "relayout", "()V", &[])?;
         Ok(self)
     }
 }

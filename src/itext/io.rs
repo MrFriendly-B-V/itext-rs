@@ -29,22 +29,12 @@ impl<'a> ImageData<'a> {
     }
 
     pub fn get_width(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        let obj = env.call_method(
-            self,
-            "getWidth",
-            "()F",
-            &[]
-        )?.f()?;
+        let obj = env.call_method(self, "getWidth", "()F", &[])?.f()?;
         Ok(obj)
     }
 
     pub fn get_height(&self, env: &mut JNIEnv<'a>) -> Result<f32> {
-        let obj = env.call_method(
-            self,
-            "getHeight",
-            "()F",
-            &[]
-        )?.f()?;
+        let obj = env.call_method(self, "getHeight", "()F", &[])?.f()?;
         Ok(obj)
     }
 }
