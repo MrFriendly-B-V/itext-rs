@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.3 (2024-10-04)
+- Add `set_fixed_layout` on `Table`
+
 ## 0.2.2 (2024-02-20)
 - Add `get_width()` and `get_height()` on `ImageData`
 - Add `get_page` and `get_number_of_pages` on `PdfDocument`

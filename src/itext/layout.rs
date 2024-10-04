@@ -443,6 +443,17 @@ impl<'a> Table<'a> {
         )?;
         Ok(self)
     }
+
+    pub fn set_fixed_layout(&self, env: &mut JNIEnv<'a>) -> Result<&Self> {
+        env.call_method(
+            self,
+            "setFixedLayout",
+            "()Lcom/itextpdf/layout/element/Table;",
+            &[]
+        )?;
+
+        Ok(self)
+    }
 }
 
 impl HorizontalAlignment {
