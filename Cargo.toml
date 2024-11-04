@@ -19,3 +19,4 @@ convert_case = "0.6.0"
 
 [build-dependencies]
 color-eyre = { version = "0.6.2", optional = true }
+cfg-if = "1.0.0"

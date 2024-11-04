@@ -14,6 +14,7 @@ mod bundled {
     use std::fs;
     use std::path::PathBuf;
     use std::process::{Command, Stdio};
+    use cfg_if::cfg_if;
 
     pub fn build_itext() -> Result<()> {
         println!("cargo:rerun-if-changed=bundle");
@@ -47,10 +48,22 @@ mod bundled {
         Ok(())
     }
 
+    fn gradle_command_name() -> &'static str {
+        cfg_if! {
+            if #[cfg(unix)] {
+                "./gradlew"
+            } else if #[cfg(windows)] {
+                "./gradlew.bat"
+            } else {
+                compiler_error!("Platform not supported");
+            }
+        }
+    }
+
     fn run_gradle_command(cmd: &str) -> Result<()> {
         let manifest_dir = PathBuf::from(var("CARGO_MANIFEST_DIR")?);
 
-        let output = Command::new("./gradlew")
+        let output = Command::new(gradle_command_name())
             .arg(cmd)
             .current_dir(manifest_dir.join("bundle").canonicalize()?)
             .stdout(Stdio::piped())
