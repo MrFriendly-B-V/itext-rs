@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0 (2025-10-08)
+- Bump gradle wrapper version to `9.1`, supporting Java 25 
+
 ## 0.2.3 (2024-10-04)
 - Add `set_fixed_layout` on `Table`
 
