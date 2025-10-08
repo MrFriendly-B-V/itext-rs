@@ -53,7 +53,7 @@ mod bundled {
             if #[cfg(unix)] {
                 "./gradlew"
             } else if #[cfg(windows)] {
-                "./gradlew.bat"
+                "gradlew.bat"
             } else {
                 compiler_error!("Platform not supported");
             }
@@ -62,10 +62,12 @@ mod bundled {
 
     fn run_gradle_command(cmd: &str) -> Result<()> {
         let manifest_dir = PathBuf::from(var("CARGO_MANIFEST_DIR")?);
+        let exec_dir = manifest_dir.join("bundle").canonicalize()?;
+        let program = exec_dir.join(gradle_command_name());
 
-        let output = Command::new(gradle_command_name())
+        let output = Command::new(&program)
             .arg(cmd)
-            .current_dir(manifest_dir.join("bundle").canonicalize()?)
+            .current_dir(&exec_dir)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()?
