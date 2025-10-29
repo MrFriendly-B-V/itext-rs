@@ -128,7 +128,7 @@ impl<'a> Color<'a> {
 
 impl ColorConstant {
     pub(crate) fn get_java_value<'a>(&self, env: &mut JNIEnv<'a>) -> Result<JObject<'a>> {
-        let field_name = self.to_string().to_case(Case::ScreamingSnake);
+        let field_name = self.to_string().to_case(Case::Constant);
 
         let obj = env
             .get_static_field(

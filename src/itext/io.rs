@@ -59,7 +59,7 @@ pub enum StandardFont {
 
 impl StandardFont {
     pub(crate) fn get_java_value<'a>(&self, env: &mut JNIEnv<'a>) -> Result<JObject<'a>> {
-        let field_name = self.to_string().to_case(Case::ScreamingSnake);
+        let field_name = self.to_string().to_case(Case::Constant);
         env.get_static_field(
             "com/itextpdf/io/font/constants/StandardFonts",
             field_name,
@@ -110,7 +110,7 @@ pub enum PdfEncodings {
 
 impl PdfEncodings {
     pub(crate) fn get_java_value<'a>(&self, env: &mut JNIEnv<'a>) -> Result<JObject<'a>> {
-        let field_name = self.to_string().to_case(Case::ScreamingSnake);
+        let field_name = self.to_string().to_case(Case::Constant);
         env.get_static_field(
             "com/itextpdf/io/font/PdfEncodings",
             field_name,
