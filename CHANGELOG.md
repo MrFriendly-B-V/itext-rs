@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1 (2025-10-29)
+- Fix missed breaking changes in itext
+
 ## 0.4.0 (2025-10-29)
 - Bump bundled `itext` version to `9.2.0`
 - Add `BarcodeEAN` support

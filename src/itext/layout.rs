@@ -126,20 +126,20 @@ where
         env: &mut JNIEnv<'a>,
     ) -> Result<&Self> {
         let halign_j = alignment.get_java_value(env)?;
-        env.call_method(self.as_ref(), "setHorizontalAlignment", "(Lcom/itextpdf/layout/property/HorizontalAlignment;)Lcom/itextpdf/layout/IPropertyContainer;", &[(&halign_j).into()])?;
+        env.call_method(self.as_ref(), "setHorizontalAlignment", "(Lcom/itextpdf/layout/properties/HorizontalAlignment;)Lcom/itextpdf/layout/IPropertyContainer;", &[(&halign_j).into()])?;
         Ok(self)
     }
 
     fn set_text_alignment(&self, alignment: TextAlignment, env: &mut JNIEnv<'a>) -> Result<&Self> {
         let talign_j = alignment.get_java_value(env)?;
-        env.call_method(self.as_ref(), "setTextAlignment", "(Lcom/itextpdf/layout/property/TextAlignment;)Lcom/itextpdf/layout/IPropertyContainer;", &[(&talign_j).into()])?;
+        env.call_method(self.as_ref(), "setTextAlignment", "(Lcom/itextpdf/layout/properties/TextAlignment;)Lcom/itextpdf/layout/IPropertyContainer;", &[(&talign_j).into()])?;
         Ok(self)
     }
 
     fn set_bold(&self, env: &mut JNIEnv<'a>) -> Result<&Self> {
         env.call_method(
             self.as_ref(),
-            "setBold",
+            "simulateBold",
             "()Lcom/itextpdf/layout/IPropertyContainer;",
             &[],
         )?;
@@ -149,7 +149,7 @@ where
     fn set_italic(&self, env: &mut JNIEnv<'a>) -> Result<&Self> {
         env.call_method(
             self.as_ref(),
-            "setItalic",
+            "simulateItalic",
             "()Lcom/itextpdf/layout/IPropertyContainer;",
             &[],
         )?;
@@ -275,7 +275,7 @@ where
         env: &mut JNIEnv<'a>,
     ) -> Result<&Self> {
         let valign_j = alignment.get_java_value(env)?;
-        env.call_method(self.as_ref(), "setVerticalAlignment", "(Lcom/itextpdf/layout/property/VerticalAlignment;)Lcom/itextpdf/layout/element/IElement;", &[(&valign_j).into()])?;
+        env.call_method(self.as_ref(), "setVerticalAlignment", "(Lcom/itextpdf/layout/properties/VerticalAlignment;)Lcom/itextpdf/layout/element/IElement;", &[(&valign_j).into()])?;
         Ok(self)
     }
 }
@@ -462,9 +462,9 @@ impl HorizontalAlignment {
 
         let obj = env
             .get_static_field(
-                "com/itextpdf/layout/property/HorizontalAlignment",
+                "com/itextpdf/layout/properties/HorizontalAlignment",
                 field_name,
-                "Lcom/itextpdf/layout/property/HorizontalAlignment;",
+                "Lcom/itextpdf/layout/properties/HorizontalAlignment;",
             )?
             .l()?;
         Ok(obj)
@@ -477,9 +477,9 @@ impl VerticalAlignment {
 
         let obj = env
             .get_static_field(
-                "com/itextpdf/layout/property/VerticalAlignment",
+                "com/itextpdf/layout/properties/VerticalAlignment",
                 field_name,
-                "Lcom/itextpdf/layout/property/VerticalAlignment;",
+                "Lcom/itextpdf/layout/properties/VerticalAlignment;",
             )?
             .l()?;
         Ok(obj)
@@ -514,9 +514,9 @@ impl TextAlignment {
 
         let obj = env
             .get_static_field(
-                "com/itextpdf/layout/property/TextAlignment",
+                "com/itextpdf/layout/properties/TextAlignment",
                 field_name,
-                "Lcom/itextpdf/layout/property/TextAlignment;",
+                "Lcom/itextpdf/layout/properties/TextAlignment;",
             )?
             .l()?;
         Ok(obj)
