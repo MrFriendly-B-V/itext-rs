@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (2025-10-29)
+- Bump bundled `itext` version to `9.2.0`
+- Add `BarcodeEAN` support
+
 ## 0.3.0 (2025-10-08)
 - Bump gradle wrapper version to `9.1`, supporting Java 25 
 

@@ -8,13 +8,13 @@ fn main() -> color_eyre::Result<()> {
 
 #[cfg(feature = "bundled")]
 mod bundled {
+    use cfg_if::cfg_if;
     use color_eyre::eyre::Error;
     use color_eyre::Result;
     use std::env::var;
     use std::fs;
     use std::path::PathBuf;
     use std::process::{Command, Stdio};
-    use cfg_if::cfg_if;
 
     pub fn build_itext() -> Result<()> {
         println!("cargo:rerun-if-changed=bundle");

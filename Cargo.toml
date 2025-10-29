@@ -1,8 +1,8 @@
 [package]
 name = "itext"
-version = "0.3.1"
+version = "0.4.0"
 edition = "2021"
-description = "Safe rust bindings to the iText 7 PDF generation library written in Java"
+description = "Safe rust bindings to the iText 9 PDF generation library written in Java"
 readme = "./README.md"
 repository = "https://github.com/MrFriendly-B-V/itext-rs"
 license = "MIT OR Apache-2.0"
@@ -14,8 +14,8 @@ bundled = ["color-eyre"]
 
 [dependencies]
 jni = "0.21.1"
-strum_macros = "0.24.3"
-convert_case = "0.6.0"
+strum_macros = "0.27.2"
+convert_case = "0.8.0"
 
 [build-dependencies]
 color-eyre = { version = "0.6.2", optional = true }

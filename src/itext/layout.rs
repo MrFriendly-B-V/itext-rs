@@ -449,7 +449,7 @@ impl<'a> Table<'a> {
             self,
             "setFixedLayout",
             "()Lcom/itextpdf/layout/element/Table;",
-            &[]
+            &[],
         )?;
 
         Ok(self)

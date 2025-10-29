@@ -18,6 +18,7 @@ java_object!(PdfFontFactory);
 java_object!(PdfCanvas);
 java_object!(PdfPage);
 java_object!(PdfExtGState);
+java_object!(PdfFormXObject);
 java_object!(Rectangle);
 
 #[derive(Clone, Display)]
@@ -343,6 +344,27 @@ impl<'a> PdfCanvas<'a> {
         )?;
         Ok(self)
     }
+
+    pub fn add_x_object_at_form(
+        &self,
+        x_object: &PdfFormXObject,
+        x: f32,
+        y: f32,
+        env: &mut JNIEnv<'a>,
+    ) -> Result<&Self> {
+        env.call_method(
+            self,
+            "addXObjectAt",
+            "(Lcom/itextpdf/kernel/pdf/xobject/PdfXObject;FF)Lcom/itextpdf/kernel/pdf/canvas/PdfCanvas;",
+            &[
+                (&x_object).into(),
+                x.into(),
+                y.into()
+            ]
+        )?;
+
+        Ok(self)
+    }
 }
 
 impl<'a> PdfPage<'a> {
@@ -451,3 +473,5 @@ impl<'a> PdfExtGState<'a> {
         Ok(self)
     }
 }
+
+impl<'a> PdfFormXObject<'a> {}

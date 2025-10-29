@@ -10,7 +10,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.itextpdf:kernel:7.1.18'
-    implementation 'com.itextpdf:layout:7.1.18'
-    implementation 'com.itextpdf:io:7.1.18'
+    implementation 'com.itextpdf:kernel:9.2.0'
+    implementation 'com.itextpdf:layout:9.2.0'
+    implementation 'com.itextpdf:io:9.2.0'
+    implementation 'com.itextpdf:barcodes:9.2.0'
 }
